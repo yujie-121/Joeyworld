@@ -1,6 +1,9 @@
 const express = require("express");
 const expressHandlebars = require("express-handlebars");
-const data = require("./data.js");
+const sqlite3 = require("sqlite3");
+
+const db = new sqlite3.Database("joeyworld-database.db");
+db.run(CREATE.TABLE.movie(id.INTEGER.PRIMARY.KEY, title.TEXT, grade.INTEGER));
 const app = express();
 const bodyParser = require("body-parser");
 
