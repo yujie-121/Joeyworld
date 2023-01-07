@@ -12,6 +12,7 @@ db.run(`
 `);
 const app = express();
 const bodyParser = require("body-parser");
+const { request, response } = require("express");
 
 app.engine(
   "hbs",
@@ -56,6 +57,13 @@ app.post("/create-movie", function (request, response) {
   db.run(query, values, function (error) {
     response.redirect("/movies");
   });
+});
+
+app.post("/delete-movie/:id", function (request, response) {
+  const id = request.params.id;
+  const movieIndex = movies.findIndex((h) => h.id == id);
+  movies.splice(movieIndex, 1);
+  response.redirect("/movies");
 });
 
 app.get("/movies/:id", function (request, response) {
