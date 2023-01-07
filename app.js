@@ -55,7 +55,12 @@ app.post("/create-movie", function (request, response) {
   const values = [title, grade];
 
   db.run(query, values, function (error) {
-    response.redirect("/movies");
+    if (error) {
+      console.log(error);
+      //Display error
+    } else {
+      response.redirect("/movies" + this.lastID);
+    }
   });
 });
 
@@ -94,10 +99,15 @@ app.get("/movies/:id", function (request, response) {
   const values = [id];
 
   db.get(query, values, function (error, movie) {
-    const model = {
-      movie,
-    };
-    response.render("movie.hbs", model);
+    if (error) {
+      console.log(error);
+      //send back the error page
+    } else {
+      const model = {
+        movie,
+      };
+      response.render("movie.hbs", model);
+    }
   });
 });
 app.listen(8080);
