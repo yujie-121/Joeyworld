@@ -59,6 +59,27 @@ app.post("/create-movie", function (request, response) {
   });
 });
 
+app.get("/update-movie/:id", function (request, response) {
+  const id = request.params.id;
+  const movie = movies.find((h) => h.id == id);
+  const model = {
+    movie,
+  };
+  response.render("update-movie.hbs", model);
+});
+
+app.post("/update-movie/:id", function (request, response) {
+  const id = request.params.id;
+  const newName = request.params.name;
+  const newGrade = request.params.grade;
+
+  const movie = movies.find((h) => h.id == id);
+  movie.name = newName;
+  movie.grade = newGrade;
+
+  response.redirect("/update-movie/" + id);
+});
+
 app.post("/delete-movie/:id", function (request, response) {
   const id = request.params.id;
   const movieIndex = movies.findIndex((h) => h.id == id);
