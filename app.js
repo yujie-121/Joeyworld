@@ -98,9 +98,17 @@ app.post("/update-movie/:id", function (request, response) {
 
 app.post("/delete-movie/:id", function (request, response) {
   const id = request.params.id;
-  const movieIndex = movies.findIndex((h) => h.id == id);
-  movies.splice(movieIndex, 1);
-  response.redirect("/movies");
+
+  const query = "DELETE FROM movies WHERE id=?";
+  const values = [id];
+  db.run(query, values, function (error) {
+    if (error) {
+      console.log(error);
+      //Display the error message
+    } else {
+      response.redirect("/movies");
+    }
+  });
 });
 
 app.get("/movies/:id", function (request, response) {
