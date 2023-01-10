@@ -66,11 +66,17 @@ app.post("/create-movie", function (request, response) {
 
 app.get("/update-movie/:id", function (request, response) {
   const id = request.params.id;
-  const movie = movies.find((h) => h.id == id);
-  const model = {
-    movie,
-  };
-  response.render("update-movie.hbs", model);
+  const query = `SELECT * FROM movies WHERE id=?`;
+  const values = [id];
+  db.get(query, values, function (error, human) {
+    if (error) {
+      console.log(error);
+      //should show the error massage
+    } else {
+      const model = { movie };
+      response.render("update-movie.hbs", model);
+    }
+  });
 });
 
 app.post("/update-movie/:id", function (request, response) {
@@ -78,11 +84,16 @@ app.post("/update-movie/:id", function (request, response) {
   const newName = request.params.name;
   const newGrade = request.params.grade;
 
-  const movie = movies.find((h) => h.id == id);
-  movie.name = newName;
-  movie.grade = newGrade;
-
-  response.redirect("/update-movie/" + id);
+  const query = `UPDATE movies SET name=?,grade=? WHERE id=?`;
+  const values = [newName, newGrade, id];
+  db.run(query, values, function (error) {
+    if (error) {
+      console.log(error);
+      //show the error massage
+    } else {
+      response.redirect("/movies/" + id);
+    }
+  });
 });
 
 app.post("/delete-movie/:id", function (request, response) {
