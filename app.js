@@ -57,7 +57,7 @@ app.post("/create-movie", function (request, response) {
   db.run(query, values, function (error) {
     if (error) {
       console.log(error);
-      //Display error
+      //Display error message
     } else {
       response.redirect("/movies" + this.lastID);
     }
@@ -68,7 +68,7 @@ app.get("/update-movie/:id", function (request, response) {
   const id = request.params.id;
   const query = `SELECT * FROM movies WHERE id=?`;
   const values = [id];
-  db.get(query, values, function (error, human) {
+  db.get(query, values, function (error, movie) {
     if (error) {
       console.log(error);
       //should show the error massage
