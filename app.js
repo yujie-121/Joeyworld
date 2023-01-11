@@ -33,13 +33,22 @@ app.get("/", function (request, response) {
 });
 
 app.get("/movies", function (request, response) {
-  const query = `SELECT * FROM movies`;
+  const query = `SELECT * FROM movies ORDER BY id`;
 
   db.all(query, function (error, movies) {
-    const model = {
-      movies,
-    };
-    response.render("movies.hbs", model);
+    if (error) {
+      console.log(error);
+      const model = {
+        dbErrorOccurred: true,
+      };
+      response.render("movies.hbs", model);
+    } else {
+      const model = {
+        movies,
+        dbErrorOccurred: false,
+      };
+      response.render("movies.hbs", model);
+    }
   });
 });
 
@@ -59,21 +68,23 @@ app.post("/create-movie", function (request, response) {
       console.log(error);
       //Display error message
     } else {
-      response.redirect("/movies" + this.lastID);
+      response.redirect("/movies/" + this.lastID);
     }
   });
 });
 
 app.get("/update-movie/:id", function (request, response) {
   const id = request.params.id;
-  const query = `SELECT * FROM movies WHERE id=?`;
+  const query = "SELECT * FROM movies WHERE id=?";
   const values = [id];
   db.get(query, values, function (error, movie) {
     if (error) {
       console.log(error);
       //should show the error massage
     } else {
-      const model = { movie };
+      const model = {
+        movie,
+      };
       response.render("update-movie.hbs", model);
     }
   });
@@ -81,11 +92,11 @@ app.get("/update-movie/:id", function (request, response) {
 
 app.post("/update-movie/:id", function (request, response) {
   const id = request.params.id;
-  const newName = request.params.name;
+  const newTitle = request.params.title;
   const newGrade = request.params.grade;
 
-  const query = `UPDATE movies SET name=?,grade=? WHERE id=?`;
-  const values = [newName, newGrade, id];
+  const query = `UPDATE movies SET title=?,grade=? WHERE id=?`;
+  const values = [newTitle, newGrade, id];
   db.run(query, values, function (error) {
     if (error) {
       console.log(error);
@@ -99,7 +110,7 @@ app.post("/update-movie/:id", function (request, response) {
 app.post("/delete-movie/:id", function (request, response) {
   const id = request.params.id;
 
-  const query = "DELETE FROM movies WHERE id=?";
+  const query = `DELETE FROM movies WHERE id=?`;
   const values = [id];
   db.run(query, values, function (error) {
     if (error) {
