@@ -56,25 +56,51 @@ app.get("/create-movie", function (request, response) {
   response.render("create-movie.hbs");
 });
 
+function getValidationErrorsForMovie(title, grade) {
+  const validationErrors = [];
+  if (title == "") {
+    validationErrors.push("Title can't be empty");
+  } else if (grade < 0) {
+    validationErrors.push("Grade can't be nagative.");
+  } else if (grade == "") {
+    validationErrors.push("Grade can't be empty.");
+  } else if (grade > 10) {
+    validationErrors.push("The maximun grade is 10.");
+  } else if (isNaN(grade)) {
+    validationErrors.push("You did not enter a number for the grade");
+  }
+  return validationErrors;
+}
+
 app.post("/create-movie", function (request, response) {
   const title = request.body.title;
-  const grade = request.body.grade;
+  const grade = parseInt(request.body.grade);
+  const validationErrors = getValidationErrorsForMovie(title, grade);
 
-  const query = `INSERT INTO movies(title,grade) VALUES (?, ?)`;
-  const values = [title, grade];
+  if (validationErrors.length == 0) {
+    const query = `INSERT INTO movies(title,grade) VALUES (?, ?)`;
+    const values = [title, grade];
 
-  db.run(query, values, function (error) {
-    if (error) {
-      console.log(error);
-      //Display error message
-    } else {
-      response.redirect("/movies/" + this.lastID);
-    }
-  });
+    db.run(query, values, function (error) {
+      if (error) {
+        console.log(error);
+        //Display error message
+      } else {
+        response.redirect("/movies/" + this.lastID);
+      }
+    });
+  } else {
+    const model = {
+      validationErrors,
+      title,
+      grade,
+    };
+    response.render("create-movie.hbs", model);
+  }
 });
 
 app.get("/update-movie/:id", function (request, response) {
-  const id = request.params.id;
+  const id = request.body.id;
   const query = "SELECT * FROM movies WHERE id=?";
   const values = [id];
   db.get(query, values, function (error, movie) {
@@ -92,19 +118,33 @@ app.get("/update-movie/:id", function (request, response) {
 
 app.post("/update-movie/:id", function (request, response) {
   const id = request.params.id;
-  const newTitle = request.params.title;
-  const newGrade = request.params.grade;
+  const newTitle = request.body.title;
+  const newGrade = parseInt(request.body.grade);
 
-  const query = `UPDATE movies SET title=?,grade=? WHERE id=?`;
-  const values = [newTitle, newGrade, id];
-  db.run(query, values, function (error) {
-    if (error) {
-      console.log(error);
-      //show the error massage
-    } else {
-      response.redirect("/movies/" + id);
-    }
-  });
+  const validationErrors = getValidationErrorsForMovie(newTitle, newGrade);
+
+  if (validationErrors.length == 0) {
+    const query = `UPDATE movies SET title=?,grade=? WHERE id=?`;
+    const values = [newTitle, newGrade, id];
+    db.run(query, values, function (error) {
+      if (error) {
+        console.log(error);
+        //show the error massage
+      } else {
+        response.redirect("/movies/" + id);
+      }
+    });
+  } else {
+    const model = {
+      movie: {
+        id,
+        title: newTitle,
+        grade: newGrade,
+        validationErrors,
+      },
+    };
+    response.render("update-movie.hbs", model);
+  }
 });
 
 app.post("/delete-movie/:id", function (request, response) {

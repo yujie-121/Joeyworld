@@ -1,14 +1,22 @@
-<h1>Create</h1>
+<h1>Create Movie</h1>
+{{#if validationErrors.length}}
+  <p>Couldn't create the movie because:</p>
+  <ul>
+    {{#each validationErrors}}
+      <li>{{this}}</li>
+    {{/each}}
+  </ul>
+{{/if}}
 <form action="" method="POST">
 
   <div>
     Title:
-    <input type="text" name="title" />
+    <input type="text" name="title" value="{{title}}" />
   </div>
 
   <div>
     Grade:
-    <input type="number" name="grade" />
+    <input type="number" name="grade" value="{{grade}}" />
   </div>
 
   <input type="submit" value="Create" />

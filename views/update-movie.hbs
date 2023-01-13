@@ -1,4 +1,12 @@
 <h1>Update Movie</h1>
+{{#if validationErrors.length}}
+  <p>Couldn't create the movie because:</p>
+  <ul>
+    {{#each validationErrors}}
+      <li>{{this}}</li>
+    {{/each}}
+  </ul>
+{{/if}}
 <form method="post">
   <div>
     <input type="text" name="title" value="{{movie.title}}" />
