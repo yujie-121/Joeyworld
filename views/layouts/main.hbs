@@ -11,12 +11,19 @@
       <h1>Joey's world</h1>
     </header>
     <nav>
-      <a href="/">Start</a>
-      <a href="/movies">Movies</a>
-      <a href="/create-movie">Create Movie</a>
-
-      <a href="/login">Login</a>
-
+      <ul>
+        <li><a href="/">Start</a></li>
+        <li><a href="/movies">Movies</a></li>
+        {{#if isLoggedIn}}
+          <li><a href="/create-movie">Create Movie</a></li>
+        {{/if}}
+        {{#unless isLoggedIn}}
+          <li><a href="/login">Login</a></li>
+        {{/unless}}
+        {{#if isLoggedIn}}
+          <li><a href="/logout">Logout</a></li>
+        {{/if}}
+      </ul>
     </nav>
 
     {{{body}}}

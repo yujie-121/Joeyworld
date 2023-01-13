@@ -3,6 +3,7 @@ const expressHandlebars = require("express-handlebars");
 const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3");
 const expressSession = require("express-session");
+const SQLiteStore = require("connect-sqlite3")(expressSession);
 //login
 const correctUsername = "Joey";
 const correctPassword = "jie121";
@@ -22,6 +23,7 @@ app.use(
     secret: "dabidweuf",
     saveUninitialized: false,
     resave: false,
+    store: new SQLiteStore(),
   })
 );
 
@@ -74,7 +76,11 @@ app.get("/movies", function (request, response) {
 });
 
 app.get("/create-movie", function (request, response) {
-  response.render("create-movie.hbs");
+  if (request.session.isLoggedIn) {
+    response.render("create-movie.hbs");
+  } else {
+    response.redirect("/login");
+  }
 });
 
 function getValidationErrorsForMovie(title, grade) {
@@ -94,9 +100,13 @@ function getValidationErrorsForMovie(title, grade) {
 app.post("/create-movie", function (request, response) {
   const title = request.body.title;
   const grade = parseInt(request.body.grade);
-  const validationErrors = getValidationErrorsForMovie(title, grade);
+  const errors = getValidationErrorsForMovie(title, grade);
 
-  if (validationErrors.length == 0) {
+  if (!request.session.isLoggedIn) {
+    errors.push("⚠ Please login first!");
+  }
+
+  if (errors.length == 0) {
     const query = `INSERT INTO movies(title,grade) VALUES (?, ?)`;
     const values = [title, grade];
 
@@ -110,7 +120,7 @@ app.post("/create-movie", function (request, response) {
     });
   } else {
     const model = {
-      validationErrors,
+      errors,
       title,
       grade,
     };
@@ -207,13 +217,15 @@ app.post("/login", function (request, response) {
     enteredUsername == correctUsername &&
     enteredPassword == correctPassword
   ) {
-    //login
+    //Login
     request.session.isLoggedIn = true;
     response.redirect("/");
   } else {
-    //can't edit
+    //Can't edit
     response.redirect("/movies");
   }
 });
-
+app.get("/logout", function (request, response) {
+  (request.session.isLoggedIn = false), response.redirect("/");
+});
 app.listen(8080);

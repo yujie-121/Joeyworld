@@ -2,7 +2,7 @@
 {{#if validationErrors.length}}
   <p>Couldn't create the movie because:</p>
   <ul>
-    {{#each validationErrors}}
+    {{#each errors}}
       <li>{{this}}</li>
     {{/each}}
   </ul>
