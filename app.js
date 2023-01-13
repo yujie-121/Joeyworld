@@ -1,7 +1,11 @@
 const express = require("express");
 const expressHandlebars = require("express-handlebars");
+const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3");
 const expressSession = require("express-session");
+//login
+const correctUsername = "Joey";
+const correctPassword = "jie121";
 
 const db = new sqlite3.Database("joeyworld-database.db");
 db.run(`
@@ -20,10 +24,7 @@ app.use(
     resave: false,
   })
 );
-const correctUsername = "Joey";
-const correctPassword = "jie121";
 
-const bodyParser = require("body-parser");
 const { request, response } = require("express");
 
 app.engine(
@@ -40,6 +41,12 @@ app.use(
     extended: false,
   })
 );
+
+app.use(function (request, response, next) {
+  const isLoggedIn = request.session.isLoggedIn;
+  response.locals.isLoggedIn = isLoggedIn;
+  next();
+});
 app.get("/", function (request, response) {
   const isLoggedIn = request.session.isLoggedIn;
   console.log(isLoggedIn);
@@ -194,8 +201,8 @@ app.get("/login", function (request, response) {
   response.render("login.hbs");
 });
 app.post("/login", function (request, response) {
-  const enteredUsername = correctUsername;
-  const enteredPassword = correctPassword;
+  const enteredUsername = request.body.username;
+  const enteredPassword = request.body.password;
   if (
     enteredUsername == correctUsername &&
     enteredPassword == correctPassword
@@ -205,10 +212,7 @@ app.post("/login", function (request, response) {
     response.redirect("/");
   } else {
     //can't edit
-    const model = {
-      failedToLogin: true,
-    };
-    response.render("login.hbs", model);
+    response.redirect("/movies");
   }
 });
 
