@@ -62,8 +62,6 @@ function getValidationErrorsForMovie(title, grade) {
     validationErrors.push("Title can't be empty");
   } else if (grade < 0) {
     validationErrors.push("Grade can't be nagative.");
-  } else if (grade == "") {
-    validationErrors.push("Grade can't be empty.");
   } else if (grade > 10) {
     validationErrors.push("The maximun grade is 10.");
   } else if (isNaN(grade)) {
@@ -136,12 +134,9 @@ app.post("/update-movie/:id", function (request, response) {
     });
   } else {
     const model = {
-      movie: {
-        id,
-        title: newTitle,
-        grade: newGrade,
-        validationErrors,
-      },
+      validationErrors,
+      title: newTitle,
+      grade: newGrade,
     };
     response.render("update-movie.hbs", model);
   }
