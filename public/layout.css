@@ -1,3 +1,7 @@
 body {
-  background-color: blueviolet;
+  background-color: whitesmoke;
+}
+header {
+  font: 1em sans-serif;
+  font-style: italic;
 }

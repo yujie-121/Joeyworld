@@ -1,2 +1,8 @@
 <h1>Welcome to Joey's world</h1>
-<p>This is a website for Peter's course.</p>
+<p>On this website you can find good movies to watch.</p>
+
+{{#if session.isLoggedIn}}
+  <p>You are logged in.</p>
+{{else}}
+  <p>Not logged in</p>
+{{/if}}

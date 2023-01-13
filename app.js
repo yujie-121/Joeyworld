@@ -1,6 +1,7 @@
 const express = require("express");
 const expressHandlebars = require("express-handlebars");
 const sqlite3 = require("sqlite3");
+const expressSession = require("express-session");
 
 const db = new sqlite3.Database("joeyworld-database.db");
 db.run(`
@@ -11,6 +12,17 @@ db.run(`
 	)
 `);
 const app = express();
+
+app.use(
+  expressSession({
+    secret: "dabidweuf",
+    saveUninitialized: false,
+    resave: false,
+  })
+);
+const correctUsername = "Joey";
+const correctPassword = "jie121";
+
 const bodyParser = require("body-parser");
 const { request, response } = require("express");
 
@@ -29,6 +41,8 @@ app.use(
   })
 );
 app.get("/", function (request, response) {
+  const isLoggedIn = request.session.isLoggedIn;
+  console.log(isLoggedIn);
   response.render("start.hbs");
 });
 
@@ -175,4 +189,27 @@ app.get("/movies/:id", function (request, response) {
     }
   });
 });
+
+app.get("/login", function (request, response) {
+  response.render("login.hbs");
+});
+app.post("/login", function (request, response) {
+  const enteredUsername = correctUsername;
+  const enteredPassword = correctPassword;
+  if (
+    enteredUsername == correctUsername &&
+    enteredPassword == correctPassword
+  ) {
+    //login
+    request.session.isLoggedIn = true;
+    response.redirect("/");
+  } else {
+    //can't edit
+    const model = {
+      failedToLogin: true,
+    };
+    response.render("login.hbs", model);
+  }
+});
+
 app.listen(8080);
